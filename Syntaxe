@@ -1,0 +1,80 @@
+% Syntaxe hybride Latex-Markdown %
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Notes (visible dans le pdf)             : !>Contenu de la note<!                                Multiligne
+Description :
+
+Commentaire (invisible dans le pdf)     : !/* */!                                               Multiligne
+Description :
+
+bloc code                               : !{char* var =  ma variable de code}!                  Multiligne
+Description :
+
+gras                                    : !&texte en gras&!                                     Multiligne
+Description :
+
+italique                                : !/texte en italique/!                                 Multiligne
+Description :
+
+sousligné                               : !_texte souligné_!                                    Multiligne
+Description :
+
+barré                                   : !--texte barré--!                                     Multiligne
+Description :
+
+paragraphe                              : !&texte dans un paragraphe&!                          Multiligne
+Description :
+
+titre de document                       : % Titre du Document de syntaxe %                      Ligne entiere
+                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Description :
+
+titre de partie                         : !<NIVEAU>[NUMEROTATION]- Texte du titre               Ligne entiere
+                                          ======================================= Niveau 1
+                                          --------------------------------------- Niveau 2
+                                          _______________________________________ Niveau 3
+Description :
+NIVEAU correspond au niveau du titre, sa valeur peu aller de 0 à 99
+NUMERO correspond au numéro du titre, sa valeur est au format "XX.[XX.]" le nombre de "[XX.]" correspond au niveau du titre
+Le soulignement est optionnel et se limite aux 3 premiers niveaux
+
+liste à points                          : !(*)                                                  Ligne entiere
+Description :
+
+liste numérotée                         : !NUMERO                                               Ligne entiere
+Description :
+NUMERO correspond à l'indice de la ligne
+
+ligne horizontale                       : !---!                                                 Ligne entiere
+Description :
+Le nombre de "-" doit être de 3 minimum et n'a pas de limite maximale
+
+saut de page                            : !+++!                                                 Ligne entiere
+Description :
+Le nombre de "+" doit être de 3 minimum et n'a pas de limite maximale
+
+tableau                                 :                                                       Autre
+![==================================================
+%=========#============#===============#===========%
+|         |            |               |           |
+|         |            |               |           |
+%=========#============#===============#===========%
+|         |            |               |           |
+|         |            |               |           |
++---------+------------+---------------+-----------+
+|         |            |               |           |
+|         |            |               |           |
+|         |            |               |           |
+####################################################
+!]==================================================
+Description :
+Les balises "![" et "!]" servent à identifier le début d'un bloc contenant un ou plusieurs tableaux. La présence de caractères "=" est optionnelle.
+la balise "%" indique le début et la fin de la premiere ligne, permettant de délimités les points d'arret pour determiner le nombre de colonnes.
+la balise "#" permet de determiner le nombre de colonnes. Ainsi que la présence d'une ligne d'entête. mise en répetition, elle définie la fin du tableau
+la balise "+" permet de connaitre la position d'une case.
+
+insertion d'url (image, site, etc...)   : !@                                                    Multiligne
+Description :
+
+lien dans le fichier                    :                                                       Multiligne
+Description :
