@@ -1,0 +1,193 @@
+;; Raccourcis clavier personnels C-S-s- & C-s- & s- ( s- = touche windows)
+(defvar fulw 209.)
+(defvar fulh 46.)
+  ( global-set-key (kbd "s-x") 'execute-extended-command)       ;; M-x redirection
+;;( define-key dired-mode-map (kbd "<return>") 'dired-find-alternate-file)       ;; M-x redirection
+  ;; [ M-g M-g ] = goto-line
+
+  ;; Develop 
+  
+  ;; ( global-set-key (kbd "C-< c") 'comment-region)                   ;; [ C-c , l ] = semantic-analyse-possible-completion (autocompletion) 
+  ( global-set-key (kbd "C-s-c") 'comment-region) 
+  ( global-set-key (kbd "s-c") 'uncomment-region)
+
+  ;; Rechercher / remplacer caractères
+  ( global-set-key (kbd "s-q"  )     'query-replace)            ;;trouver-remplacer (default : M-%) 
+  ( global-set-key (kbd "s-g"  )     'grep-find)                ;;trouver dans les fichiers [...] 
+  ( global-set-key (kbd "C-s-s")     'search-forward-regex)     ;;trouver dans les fichiers [...] 
+  ( global-set-key (kbd "s-r"  )     'search-backward-regex)    ;;trouver dans les fichiers [...] 
+
+  ;; Parcourir / Manipuler Fichiers
+  ( global-set-key (kbd "s-f"    )   'find-lisp-find-dired)     ;;recherche de fichier
+  ( global-set-key (kbd "C-S-s-h")   'ff-find-other-file)       ;;switch headers/sources
+  ( global-set-key (kbd "C-s-h"  )   'ff-find-related-file)     ;;switch headers/sources
+  ( global-set-key (kbd "s->"    )   'windmove-right)           ;;passer à la WINDOW à droite
+  ( global-set-key (kbd "s-<"    )   'windmove-left)            ;;passer à la WINDOW à gauche
+  ( global-set-key (kbd "C->"  )   'windmove-up)              ;;passer à la WINDOW en haut
+  ( global-set-key (kbd "C-<"    )   'windmove-down)            ;;passer à la WINDOW en bas
+  ( global-set-key (kbd "C-s-<"  )   'previous-buffer)          ;;WINDOW précédente
+  ( global-set-key (kbd "C-s->"  )   'next-buffer)              ;;WINDOW suivante
+  ( global-set-key (kbd "s-*"    )   'switch-to-buffer)         ;;Afficher le fichier [...]
+
+  ( global-set-key (kbd "C-s-*"  )   'switch-to-buffer-other-window)  ;;Afficher le fichier dans sa WINDOW si existe dans la FRAME 
+  ( global-set-key (kbd "M-s-*"  )   'switch-to-buffer-other-frame)   ;;Afficher le fichier dans sa WINDOW si existe dans une autre FRAME 
+  ( global-set-key (kbd "C-s-n"  )   'new-frame)                      ;;Créer une nouvelle FRAME
+  ( global-set-key (kbd "C-s-k"  )   'delete-frame)                   ;;Supprimer une nouvelle FRAME
+  ( global-set-key (kbd "C-S-s-d")   'vc-diff)                        ;;diff du fichier avec dépot git
+  ( global-set-key (kbd "C-s-d"  )   'diff)                           ;;diff entre deux fichiers
+
+  ;; Edition
+  ( global-set-key (kbd "s-u") 'upcase-initials-region)               ;;Met en majuscule la première lettre de chaque mot
+  ( global-set-key (kbd "s-d") 'downcase-initials-region)             ;;Met en minuscule la première lettre de chaque mot
+
+  ;; Environnement 
+  ( global-set-key (kbd "C-<tab>") 'dired-default-directory-on-left)  ;;Ouvre/ferme le panneau latéral affichant le répertoire courant
+  ( global-set-key (kbd "s-t")     'term-at-bottom)                   ;;Ouvre/ferme le panneau terminal
+  ( global-set-key (kbd "s-b")     'buffer-menu-at-bottom-left)       ;;Ouvre/ferme le panneau terminal
+
+;; (setq directory-listing-before-filename-regexp "**")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes (quote (tango-dark)))
+ ;; '(dired-load-hook (local-set-key (kbd "<return>") (quote dired-find-alternate-file)))
+ '(tab-always-indent (quote complete)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(require 'semantic)
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(semantic-mode 1)
+(global-ede-mode 1)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(global-linum-mode)
+
+;; Project Dir Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun dired-default-directory-on-left ()
+  "Display `default-directory' in side window on left, hiding details."
+  (interactive )
+  (if (get-buffer "*ProjectDir*") (kill-dired-default-directory-on-left)(dired-default-directory-on-left-func))
+)
+
+(defun kill-dired-default-directory-on-left ()
+  "Display `default-directory' in side window on left, hiding details."
+  (select-window (get-buffer-window "*ProjectDir*"))
+  (kill-buffer-and-window)
+)
+
+(defun dired-default-directory-on-left-func ()
+  "Display `default-directory' in side window on left, hiding details."
+  ;; (dired default-directory "-algoh --time-style=+ --group-directories-first --dired")
+  ;; (display-buffer-in-side-window
+  ;;  (current-buffer) `((side . left) (slot . -10) (window-width . 30) (window-height . 70))
+  ;;  )
+  ;; (rename-buffer "*ProjectDir*")
+  ;; (previous-buffer)
+  ;; (select-window (get-buffer-window "*ProjectDir*"))
+  ;; (let ((buffer (dired-noselect default-directory)))
+  ;;   (with-current-buffer buffer (dired-d
+  (dired default-directory "-algoh --time-style=+ --group-directories-first --dired")
+  (display-buffer-in-side-window
+   (current-buffer) `((side . left) (slot . -10) (window-width . 30) (window-height . 70))
+   )
+  (rename-buffer "*ProjectDir*")
+  (previous-buffer)
+  (select-window (get-buffer-window "*ProjectDir*"))
+  ;; (set-window-dedicated-p (selected-window) t)
+)
+
+
+;; Buffers List Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun buffer-menu-at-bottom-left ()
+  "Display `Ibuffer' in side window on bottom left."
+  (interactive)
+  (if (get-buffer "*Ibuffer*") (kill-buffer-menu-at-bottom-left)(buffer-menu-at-bottom-left-func))
+)
+
+(defun kill-buffer-menu-at-bottom-left ()
+  "Destroy `Ibuffer' buffer and its window."
+  (select-window (get-buffer-window "*Ibuffer*"))
+  (kill-buffer-and-window)
+)
+
+(defun buffer-menu-at-bottom-left-func ()
+  "Display `Ibuffer' in side window on bottom left."
+  (if (get-buffer "*Ibuffer*") (delete-windows-on "*Ibuffer*"))
+  (ibuffer)
+  (display-buffer-in-side-window
+   (current-buffer) `((side . bottom) (slot . -5) (window-height . 10))
+   )
+  (previous-buffer)
+  (select-window (get-buffer-window "*Ibuffer*"))
+  (set-window-dedicated-p (selected-window) t)
+)
+
+;; Find Window Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun find-name-dired-on-right (dir filename)
+  "Display `Find' in side window on bottom."
+  (interactive "whatdo you want to search?"
+               (insert (format "%s" dir))
+               (insert (format "%s" filename))
+   )
+  (if (get-buffer "*Find*") (kill-find-name-dired-on-right)(find-name-dired-on-right-func dir filename))
+)
+
+(defun kill-find-name-dired-on-right ()
+  "Destroy `Find' buffer and its window."
+  (select-window (get-buffer-window "*Find*"))
+  (kill-buffer-and-window)
+)
+
+(defun find-name-dired-on-right-func (dir filename)
+  "Display `Find' in side window on right."
+  (find-name-dired dir filename)
+  ;; (display-buffer-in-side-window
+  ;;  (current-buffer) `((side . right) (slot . -10) (window-width . (x-display-pixel-width)) (window-height . (x-display-pixel-height))
+  ;;                  )
+  ;;  )
+  ;; (previous-buffer)
+)
+
+;; Terminal Window Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun term-at-bottom ()
+  "Display `terminal' in side window on bottom."
+  (interactive)
+  (if (get-buffer "*terminal*") (kill-term-at-bottom)(term-at-bottom-func))
+)
+
+(defun kill-term-at-bottom ()
+  "Destroy `terminal' buffer and its window."
+  (select-window (get-buffer-window "*terminal*"))
+  (kill-buffer-and-window)
+)
+
+(defun term-at-bottom-func ()
+  "Display `term' in side window at bottom."
+  (interactive)
+  (if (get-buffer "*terminal*") (delete-windows-on "*terminal*"))
+  (term "/bin/bash")
+  (display-buffer-in-side-window
+   (current-buffer) `((side . bottom) (slot . 0) (window-sides-vertical t)(window-height . 10)
+                      )
+   )
+  (previous-buffer)
+  (select-window (get-buffer-window "*terminal*"))
+  (set-window-dedicated-p (selected-window) t)
+)
+(put 'dired-find-alternate-file 'disabled nil)
+
+(defun untab-file ()
+  "Replace tabs by spaces."
+  (interactive)
+  (beginning-of-buffer)
+  (set-mark-command)
+  (end-of-buffer)
+  (untabify)
+)

@@ -1,0 +1,15 @@
+[user]
+	email = fltt@protonmail.ch
+	name = Florent TURRI
+[core]
+	editor = emacs --no-window-system
+	quotePath = false
+	commitGraph = true
+[alias]
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+[commit]
+        template = .commit-template
+[receive]
+	advertisePushOptions = true
+[gc]
+	writeCommitGraph = true
