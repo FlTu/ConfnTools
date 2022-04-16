@@ -22,7 +22,7 @@ Description :
 barré                                   : !--texte barré--!                                     Multiligne
 Description :
 
-paragraphe                              : !&texte dans un paragraphe&!                          Multiligne
+paragraphe                              : !"texte dans un paragraphe"!                          Multiligne
 Description :
 
 titre de document                       : % Titre du Document de syntaxe %                      Ligne entiere
