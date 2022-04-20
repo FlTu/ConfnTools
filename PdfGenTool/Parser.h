@@ -10,22 +10,22 @@
 #define __PARSER_H__
 /** std CPP Includes **/
 #include <cstdlib>
-#include <vector>
 /** std C Includes **/
 
 /** external includes **/
-
+#include <boost/regex.hpp> // boost lib
+#include <container/vector.hpp> // boost lib
 /** internal includes **/
 #include "Parametres.h"
 #include "IOPdf.h"
 
 /** Namespace **/
-using namespace std;
+using namespace boost;
 
 class Parser
 {
 private:
-  vector<char*> cParametersList;
+  container::vector<char*> cParametersList;
 
   regex rFileTitleFirstLine;
   regex rFileTitleSecondLine;
@@ -34,10 +34,14 @@ private:
   regex rNote;
   regex rComment;
   regex rCodeBlock;
-  regex rBold;
-  regex rItalic;
-  regex rUnderligne;
-  regex rParagraph;
+  regex rBoldStart;
+  regex rBoldEnd;
+  regex rItalicStart;
+  regex rItalicEnd;
+  regex rUnderligneStart;
+  regex rUnderligneEnd;
+  regex rParagraphStart;
+  regex rParagraphEnd;
   regex rDotList;
   regex rNumList;
   regex rHRule;

@@ -10,7 +10,6 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include <regex>
 /** C Includes **/
 /** external includes **/
 
@@ -18,27 +17,31 @@
 #include "Parser.h"
 #include "Helper.h"
 
-Parser::Parser():cParametersList(vector<char*>({}))
+Parser::Parser():cParametersList(container::vector<char*>({}))
 {
   /** Définition des Expressions réguilières **/
   rFileTitleFirstLine = regex("^\\% .* \\%\n$");
-  rFileTitleSecondLine = regex("^\\~*$", std::regex_constants::ECMAScript);
-  rPartTitleFirstLine = regex("\\!\\<[0-9]*\\>\\[([0-9]*\\.)*\\]- .*", std::regex_constants::ECMAScript);
-  rPartTitleSecondLine = regex("", std::regex_constants::ECMAScript);
-  rNote = regex("!>.*<!", std::regex_constants::ECMAScript);
-  rComment = regex("", std::regex_constants::ECMAScript);
-  rCodeBlock = regex("", std::regex_constants::ECMAScript);
-  rBold = regex("", std::regex_constants::ECMAScript);
-  rItalic = regex("", std::regex_constants::ECMAScript);
-  rUnderligne = regex("", std::regex_constants::ECMAScript);
-  rParagraph = regex("", std::regex_constants::ECMAScript);
-  rDotList = regex("", std::regex_constants::ECMAScript);
-  rNumList = regex("", std::regex_constants::ECMAScript);
-  rHRule = regex("", std::regex_constants::ECMAScript);
-  rEndOfPage = regex("", std::regex_constants::ECMAScript);
-  rTable = regex("", std::regex_constants::ECMAScript);
-  rURL = regex("", std::regex_constants::ECMAScript);
-  rLocalLink = regex("", std::regex_constants::ECMAScript);
+  rFileTitleSecondLine = regex("^\\~*$");
+  rPartTitleFirstLine = regex("^!<[0-9]*>\\[[0-9](.[0-9])-*\\]");
+  rPartTitleSecondLine = regex("^=|-|_$");
+  rNote = regex("!>.*<!");
+  rComment = regex("");
+  rCodeBlock = regex("");
+  rBoldStart = regex("!&");
+  rBoldEnd = regex("&!");
+  rItalicStart = regex("!/");
+  rItalicEnd = regex("/!");
+  rUnderligneStart = regex("!_");
+  rUnderligneEnd = regex("_!");
+  rParagraphStart = regex("!\"");
+  rParagraphEnd = regex("\"!");
+  rDotList = regex("");
+  rNumList = regex("");
+  rHRule = regex("");
+  rEndOfPage = regex("");
+  rTable = regex("");
+  rURL = regex("");
+  rLocalLink = regex("");
 
 
 }
@@ -121,7 +124,6 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
     }
   }
   if(lParametres.GetOutputFileName() == ""){
-    std::cout << "Pourquoi??? " << lParametres.GetOutputFileName() << std::endl;
     lParametres.SetOutputFileName(lParametres.GetInputFileName()+ ".pdf");
 
   }
@@ -135,46 +137,213 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
   char curChar;
   fstream inputfile;
   bool isFirstLine = true;
-  std::vector<std::string> storedLines;
+  bool isDrawable = true;
+  bool isParagraph = false;
+  PdfFont * curFont = NULL;
+  container::vector<std::string> storedLines;
 
 
   try{
     lOutFile = new IOPdf();
 
     lOutFile->AddPage(PdfPage::CreateStandardPageSize(ePdfPageSize_A4));
-    double cdX = 20;
-    double cdY = 500;
-  
+    double cdX = 0;
+    double cdY = (lOutFile->GetPageSize().GetHeight()) - 40;
+    double nextY = 0;
     inputfile.open(iFileName, std::ios_base::in);
     while(inputfile.read(&curChar, 1)){
+      PoDoFo::PdfString curString;
       curLine += curChar;
       if(curChar == 10){
         
         if(isFirstLine){
           isFirstLine = false;
+          isDrawable = false;
           if(regex_search(curLine, rFileTitleFirstLine)){
             storedLines.push_back(curLine);
-            curLine = "";
           }
         }
+        else if(isParagraph && regex_search(curLine, rParagraphEnd)){
+          isDrawable = false;
+          cmatch m;
+          regex_search(curLine.c_str(), m, rParagraphEnd);
+          if(&curLine[curLine.length()-1] != m[0].second){
+            curString = PoDoFo::PdfString(curLine);
+            curFont = lOutFile->GetParagraphFont();
+            curFont->SetFontSize(12);
+            nextY = 20;
+            isDrawable = true;
+            
+          }
+          isParagraph = false;
+        }
+        else if(isParagraph){
+          std::string formattedString;
+          smatch matchBoldStart;
+          smatch matchBoldEnd;
+          smatch matchItalicStart;
+          smatch matchItalicEnd;
+          smatch matchUnderlinedStart;
+          smatch matchUnderlinedEnd;
+          smatch matchLink;
+          int boldCount = 0;
+          int italicCount = 0;
+          int underlinedCount = 0;
+          int linkCount = 0;
+          bool isBold = false;
+          bool isItalic = false;
+          bool isUnderlined = false;
+          bool isCrossed = false;
+          std::string myStr("AA vfBB ,jioAABBgrf AAjp BB jpAAjp");
+          // bool resBold = regex_search("", matchBold, rBold);
+          int i = 1;
+          while(boost::regex_search(myStr, matchBoldStart, boost::regex("AA"))){
+            std::cout << "match " << i << " " << matchBoldStart.suffix() << std::endl;
+            myStr = matchBoldStart.suffix().;
+            boldCount++;
+          }
+          // regex_search("Voici le !_contenu_! du premier !&paragraphe&! de la premiere !&partie&! !!!\n", matchBoldStart, rBoldStart);
+          regex_search(curLine, matchBoldEnd, rBoldEnd);
+          regex_search(curLine, matchItalicStart, rItalicStart);
+          regex_search(curLine, matchItalicEnd, rItalicEnd);
+          regex_search(curLine, matchUnderlinedStart, rUnderligneStart);
+          regex_search(curLine, matchUnderlinedEnd, rUnderligneEnd);
+          regex_search(curLine, matchLink, rLocalLink);
+          for(int i = 0 ; i < curLine.length() ; i++){
+            if(matchBoldStart[boldCount] == &curLine[i]){
+              isBold = true;
+              i++;
+            }
+            else if(matchBoldEnd[boldCount] == &curLine[i]){
+              isBold = false;
+              boldCount++;
+              i++;
+            }
+            else if(matchItalicStart[italicCount] == &curLine[i]){
+              isItalic = true;
+              i++;
+            }
+            else if(matchItalicEnd[italicCount] == &curLine[i]){
+              isItalic = false;
+              italicCount++;
+              i++;
+            }
+            if(isBold && isItalic){
+              // curFont = lOutFile->GetBoldItalicFont();
+              // curFont->SetFontSize(12);
+            }
+            else if(isBold){
+              curFont = lOutFile->GetBoldFont();
+              curFont->SetFontSize(12);
+            }
+            else if(isItalic){
+              curFont = lOutFile->GetItalicFont();
+              curFont->SetFontSize(12);
+            }
+            else{
+              curFont = lOutFile->GetParagraphFont();
+              curFont->SetFontSize(12);
+            }              
+            formattedString = curLine[i];
+            curString = PoDoFo::PdfString(formattedString);
+            lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), curFont);
+            cdX+= curFont->GetFontMetrics()->CharWidth(curLine[i]);
+          }
+          nextY = 20;
+          cdY-= nextY;
+          isDrawable = false;
+        }
         else if(storedLines.size() > 0 && regex_search(storedLines.at(0), rFileTitleFirstLine) && regex_search(curLine, regex("\\~*"))){
-            std::cout << "Titre de fichier reconnu" << std::endl;
-            PoDoFo::PdfString curString(storedLines.at(0));
-            lOutFile->SetFileTitleFontSize(20);
-            lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), lOutFile->GetFileTitleFont());
-            storedLines.pop_back();
-            cdY-= 40;
-            curLine = "";
+          std::string tmpLine;
+          for (int i = 2 ; i < storedLines.at(0).length() - 3 ; i++){
+            tmpLine += storedLines.at(0)[i];
+          }
+          
+          curString = PoDoFo::PdfString(tmpLine);
+          curFont = lOutFile->GetFileTitleFont();
+          curFont->SetFontSize(40);
+          curFont->SetUnderlined(true);
+          storedLines.pop_back();
+          cdX = (lOutFile->GetPageSize().GetWidth())/2;
+          cdX -= curFont->GetFontMetrics()->StringWidth(curString)/2;
+          nextY = 60;
+          isDrawable = true;
         }
         else if(regex_search(curLine, rFileTitleFirstLine) && !isFirstLine){
           std::cout << "[ParseError] Le titre du document doit être à la première ligne du document" << std::endl;
         }
-        else{
+        else if(regex_search(curLine, rParagraphStart)){
+          std::cout << "Paragraphe reconnue" << std::endl;
+          isDrawable = false;
+          cmatch m;
+          regex_search(curLine.c_str(), m, rParagraphStart);
+          if(&curLine[curLine.length()-1] != m[0].second){
+            curString = PoDoFo::PdfString(curLine);
+            curFont = lOutFile->GetParagraphFont();
+            curFont->SetFontSize(12);
+            nextY = 20;
+            isDrawable = true;
+            
+          }
+          isParagraph = true;
         }
-        PoDoFo::PdfString curString(curLine);
-        lOutFile->SetParagraphFontSize(10);
-        lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), lOutFile->GetParagraphFont());
-        cdY-= 20;
+        else if(regex_search(curLine, rPartTitleFirstLine)){
+          
+          curFont = lOutFile->GetPartTitleFont();
+          curFont->SetUnderlined(true);
+          if(regex_search(curLine, regex("^!<1>"))){
+          std::cout << "Partie niveau 1" << std::endl;
+            curFont->SetFontSize(30);
+            cdX += 10;
+          }
+          else if(regex_search(curLine, regex("^!<2>"))){
+          std::cout << "Partie niveau 2" << std::endl;
+            curFont->SetFontSize(25);
+            cdX += 30;
+          }
+          else if(regex_search(curLine, regex("^!<3>"))){
+          std::cout << "Partie niveau 3" << std::endl;
+            curFont->SetFontSize(20);
+          }
+          else{
+            cdX += 50;
+            std::cout << "Partie niveau 4+" << std::endl;
+            curFont->SetFontSize(15);
+          }
+          std::string tmpLine;
+          int i = 0;
+          while(curLine[i]  != '>'){
+            i++;
+          }
+          i++;
+          for (; i < curLine.length() - 1 ; i++){
+            tmpLine += curLine[i];
+          }
+
+          std::cout << "Partie reconnue" << std::endl;
+          curString = PoDoFo::PdfString(tmpLine);
+          storedLines.push_back(curLine);
+          nextY = 20;
+          isDrawable = true;
+        }
+        else if(storedLines.size() > 0 && regex_search(storedLines.at(0), rPartTitleFirstLine) && regex_search(curLine, rPartTitleSecondLine)){
+          std::cout << "Partie optionnelle reconnue" << std::endl;
+          storedLines.pop_back();
+          isDrawable = false;
+        }
+        else{
+          std::cout << "autre reconnue" << std::endl;
+          curString = PoDoFo::PdfString(curLine);
+          curFont = lOutFile->GetParagraphFont();
+          curFont->SetFontSize(12);
+          nextY = 10;
+          isDrawable = true;
+        }
+        if(isDrawable){
+          lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), curFont);
+          cdY-= nextY;
+        }
+        cdX = (lOutFile->GetPageSize().GetWidth())/8;
         curLine = "";
       }
     }

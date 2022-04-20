@@ -11,13 +11,13 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-#include <regex>
 /** C Includes **/
 
 #include <podofo-base.h>
 #include <podofo.h>
 
 /** external includes **/
+#include <regex.hpp> // boost lib
 
 /** internal includes **/
 #include "Parametres.h"

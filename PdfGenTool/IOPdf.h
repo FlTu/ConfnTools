@@ -9,13 +9,12 @@
 #ifndef __IOPDF_H__
 #define __IOPDF_H__
 /** std CPP Includes **/
-#include <vector>
 /** std C Includes **/
 
 /** external includes **/
 #include <podofo-base.h>
 #include <podofo.h>
-
+#include <container/vector.hpp> // boost lib
 /** internal includes **/
 
 /** Namespace **/
@@ -29,7 +28,7 @@ private:
   PdfPage*           pcPage;
   PdfPainter         cPainter;
   PdfRect            cPageSize;
-  std::vector<PdfString>  pcPdfContent;
+  boost::container::vector<PdfString>  pcPdfContent;
   std::string pcOutputDocumentName;
   double cdX;
   double cdY;
@@ -84,23 +83,27 @@ public:
   void SetCodeBlockFontSize(int fontSize);
   int  GetBoldFontSize();
   void SetBoldFontSize(int fontSize);
+  int  GetItalicFontSize();
+  void SetItalicFontSize(int fontSize);
   int  GetParagraphFontSize();
   void SetParagraphFontSize(int fontSize);
 
   PdfFont *  GetFileTitleFont();
-  void SetFileTitleFont(PdfFont * font);
+  void       SetFileTitleFont(PdfFont * font);
   PdfFont *  GetPartTitleFont();
-  void SetPartTitleFont(PdfFont * font);
+  void       SetPartTitleFont(PdfFont * font);
   PdfFont *  GetNoteFont();
-  void SetNoteFont(PdfFont * font);
+  void       SetNoteFont(PdfFont * font);
   PdfFont *  GetCommentFont();
-  void SetCommentFont(PdfFont * font);
+  void       SetCommentFont(PdfFont * font);
   PdfFont *  GetCodeBLockFont();
-  void SetCodeBlockFont(PdfFont * font);
+  void       SetCodeBlockFont(PdfFont * font);
   PdfFont *  GetBoldFont();
-  void SetBoldFont(PdfFont * font);
+  void       SetBoldFont(PdfFont * font);
+  PdfFont *  GetItalicFont();
+  void       SetItalicFont(PdfFont * font);
   PdfFont *  GetParagraphFont();
-  void SetParagraphFont(PdfFont * font);
+  void       SetParagraphFont(PdfFont * font);
 
 };
 #endif

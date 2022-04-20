@@ -10,13 +10,15 @@
 #define __PARAMETRES_H__
 /** CPP Includes **/
 #include <fstream>
-#include <vector>
 /** C Includes **/
 
 
 /** external includes **/
+#include <container/vector.hpp> // boost lib
 
 /** internal includes **/
+
+using namespace boost;
 
 class Parametres
 {
@@ -26,7 +28,7 @@ private:
   char* pcEncoding;
   char* pcTemplateFileName;
   char* pcFontName;
-  std::vector<char*> cRawLinesInput;
+  container::vector<char*> cRawLinesInput;
 
 public:
   /** Constructeur **/

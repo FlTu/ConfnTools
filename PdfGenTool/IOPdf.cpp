@@ -16,29 +16,29 @@
 /** internal includes **/
 #include "IOPdf.h"
 
-IOPdf::IOPdf(): pcEncoding(NULL), pcMemDocument(NULL), pcPage(NULL), cPainter(), cPageSize(PoDoFo::PdfRect()), pcPdfContent(std::vector<PdfString>()), cdX(0), cdY(0)
+IOPdf::IOPdf(): pcEncoding(NULL), pcMemDocument(NULL), pcPage(NULL), cPainter(), cPageSize(PoDoFo::PdfRect()), pcPdfContent(boost::container::vector<PdfString>()), cdX(0), cdY(0)
 {
   try{
     pcMemDocument = new PdfMemDocument();
     pcEncoding = new PdfIdentityEncoding();
     pcOutputDocumentName = "";
 
-    pcFontFileTitleLine = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontPartTitleLine = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontNote = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontComment = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontCodeBlock = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontBold = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontItalic = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontUnderligne = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontParagraph = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontDotList = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontNumList = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontHRule = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontEndOfPage = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontTable = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontURL = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
-    pcFontLocalLink = pcMemDocument->CreateFont("Liberation Serif", false, pcEncoding);
+    pcFontFileTitleLine = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontPartTitleLine = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontNote = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontComment = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontCodeBlock = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontBold = pcMemDocument->CreateFont("Helvetica-Bold", false, pcEncoding);
+    pcFontItalic = pcMemDocument->CreateFont("Helvetica-Oblique", false, pcEncoding);
+    pcFontUnderligne = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontParagraph = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontDotList = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontNumList = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontHRule = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontEndOfPage = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontTable = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontURL = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontLocalLink = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
     pcFontFileTitleLine->SetFontSize(10);
     pcFontPartTitleLine->SetFontSize(16);
     pcFontNote->SetFontSize(16);
@@ -73,19 +73,9 @@ IOPdf::~IOPdf()
 void IOPdf::WriteToFile()
 {
   try{
-    // cSize = PdfPage::CreateStandardPageSize(ePdfPageSize_A4);
-    // pcPage = pcMemDocument->CreatePage(cSize);
-    // pcPainter.SetPage(pcPage);
-    // cdY = 500;
-    // for(PoDoFo::PdfString cur : pcPdfContent){
-    //   pcPainter.DrawText(cdX, cdY, cur, cur.GetLength());
-    //   // cdY-= pcFont->GetFontSize() + 5;
-    // }
-    //    cPainter.FinishPage();
     
     char * file = new char[pcOutputDocumentName.length() +1];
     std::copy(pcOutputDocumentName.begin(), pcOutputDocumentName.end(), file);
-    std::cout << file << std::endl; 
     pcMemDocument->Write(file);
   }catch(const std::exception e){
     std::cout << "[Erreur] Ecriture du fichier impossible : " << e.what() << std::endl;
@@ -198,6 +188,14 @@ void IOPdf::SetBoldFontSize(int fontSize)
 {
   pcFontBold->SetFontSize(fontSize);
 }
+int  IOPdf::GetItalicFontSize()
+{
+  return pcFontItalic->GetFontSize();
+}
+void IOPdf::SetItalicFontSize(int fontSize)
+{
+  pcFontItalic->SetFontSize(fontSize);
+}
  
 int  IOPdf::GetParagraphFontSize()
 {
@@ -258,7 +256,14 @@ void IOPdf::SetBoldFont(PdfFont * font)
 {
   pcFontBold = font;
 }
- 
+PdfFont *  IOPdf::GetItalicFont()
+{
+  return pcFontItalic;
+}
+void IOPdf::SetItalicFont(PdfFont * font)
+{
+  pcFontItalic = font;
+}
 PdfFont *  IOPdf::GetParagraphFont()
 {
   return pcFontParagraph;

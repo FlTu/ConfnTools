@@ -1,5 +1,5 @@
-INCLUDE=-I /usr/include/podofo/
-LDD=-lpodofo
+INCLUDE=-I /usr/include/podofo/ -I /usr/include/boost/
+LDD=-lpodofo -lboost_container -lboost_regex
 OUT=pdfGen
 
 all:$(OUT)

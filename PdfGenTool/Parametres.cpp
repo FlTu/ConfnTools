@@ -23,7 +23,7 @@ Parametres::Parametres():
   pcEncoding(NULL),
   pcTemplateFileName(NULL),
   pcFontName(NULL),
-  cRawLinesInput(std::vector<char*>({}))
+  cRawLinesInput(container::vector<char*>({}))
 {
 }
 Parametres::~Parametres()
