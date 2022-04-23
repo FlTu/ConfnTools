@@ -22,7 +22,7 @@ Parser::Parser():cParametersList(container::vector<char*>({}))
   /** Définition des Expressions réguilières **/
   rFileTitleFirstLine = regex("^\\% .* \\%\n$");
   rFileTitleSecondLine = regex("^\\~*$");
-  rPartTitleFirstLine = regex("^!<[0-9]*>\\[[0-9](.[0-9])-*\\]");
+  rPartTitleFirstLine = regex("^!<[0-9]*>\\[[0-9](.[0-9])*-*\\]");
   rPartTitleSecondLine = regex("^=|-|_$");
   rNote = regex("!>.*<!");
   rComment = regex("");
@@ -137,6 +137,7 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
   char curChar;
   fstream inputfile;
   bool isFirstLine = true;
+  bool isFirstPLine = false;
   bool isDrawable = true;
   bool isParagraph = false;
   PdfFont * curFont = NULL;
@@ -165,9 +166,11 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
         }
         else if(isParagraph && regex_search(curLine, rParagraphEnd)){
           isDrawable = false;
-          cmatch m;
-          regex_search(curLine.c_str(), m, rParagraphEnd);
-          if(&curLine[curLine.length()-1] != m[0].second){
+          smatch m;
+          regex_search(curLine, m, rParagraphEnd);
+          std::cout << m[1] << std::endl;;
+          std::cout << "m 0 : " << m[0] <<  " m 1 : " << m.prefix() << std::endl;
+          if(m.prefix().length() != 0){
             curString = PoDoFo::PdfString(curLine);
             curFont = lOutFile->GetParagraphFont();
             curFont->SetFontSize(12);
@@ -197,9 +200,12 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
           std::string myStr("AA vfBB ,jioAABBgrf AAjp BB jpAAjp");
           // bool resBold = regex_search("", matchBold, rBold);
           int i = 1;
+          if(isFirstPLine){
+            cdX += 15;
+          }
           while(boost::regex_search(myStr, matchBoldStart, boost::regex("AA"))){
             std::cout << "match " << i << " " << matchBoldStart.suffix() << std::endl;
-            myStr = matchBoldStart.suffix().;
+            myStr = matchBoldStart.suffix();
             boldCount++;
           }
           // regex_search("Voici le !_contenu_! du premier !&paragraphe&! de la premiere !&partie&! !!!\n", matchBoldStart, rBoldStart);
@@ -252,6 +258,11 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
           nextY = 20;
           cdY-= nextY;
           isDrawable = false;
+          if(isFirstPLine){
+            cdX -= 15;
+            isFirstPLine = false;
+          }
+
         }
         else if(storedLines.size() > 0 && regex_search(storedLines.at(0), rFileTitleFirstLine) && regex_search(curLine, regex("\\~*"))){
           std::string tmpLine;
@@ -275,16 +286,20 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
         else if(regex_search(curLine, rParagraphStart)){
           std::cout << "Paragraphe reconnue" << std::endl;
           isDrawable = false;
-          cmatch m;
-          regex_search(curLine.c_str(), m, rParagraphStart);
-          if(&curLine[curLine.length()-1] != m[0].second){
-            curString = PoDoFo::PdfString(curLine);
+          smatch m;
+          regex_search(curLine, m, rParagraphStart);
+          std::cout << "m 0 : " << m[0] <<  " m 1 : " << m.suffix() << std::endl;
+          
+          if(m.suffix().length() != 0){
+            curString = PoDoFo::PdfString(m.suffix());
             curFont = lOutFile->GetParagraphFont();
             curFont->SetFontSize(12);
             nextY = 20;
             isDrawable = true;
+            cdX +=15;
             
           }
+          isFirstPLine = true;
           isParagraph = true;
         }
         else if(regex_search(curLine, rPartTitleFirstLine)){
@@ -342,6 +357,14 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
         if(isDrawable){
           lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), curFont);
           cdY-= nextY;
+          if(isFirstPLine){
+            cdX -= 15;
+            isFirstPLine = false;
+          }
+          if(curFont->IsUnderlined()){
+            curFont->SetUnderlined(false);
+          }
+
         }
         cdX = (lOutFile->GetPageSize().GetWidth())/8;
         curLine = "";
