@@ -40,6 +40,7 @@ private:
   PdfFont  * pcFontCodeBlock;
   PdfFont  * pcFontBold;
   PdfFont  * pcFontItalic;
+  PdfFont  * pcFontBoldItalic;
   PdfFont  * pcFontUnderligne;
   PdfFont  * pcFontParagraph;
   PdfFont  * pcFontDotList;
@@ -102,6 +103,8 @@ public:
   void       SetBoldFont(PdfFont * font);
   PdfFont *  GetItalicFont();
   void       SetItalicFont(PdfFont * font);
+  PdfFont *  GetBoldItalicFont();
+  void       SetBoldItalicFont(PdfFont * font);
   PdfFont *  GetParagraphFont();
   void       SetParagraphFont(PdfFont * font);
 

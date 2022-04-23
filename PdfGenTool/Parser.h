@@ -49,7 +49,7 @@ private:
   regex rTable;
   regex rURL;
   regex rLocalLink;
-  
+  double cPdfMargin;
   
 public:
   /** Constructeur **/

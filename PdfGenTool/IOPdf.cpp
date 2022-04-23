@@ -30,8 +30,9 @@ IOPdf::IOPdf(): pcEncoding(NULL), pcMemDocument(NULL), pcPage(NULL), cPainter(),
     pcFontCodeBlock = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
     pcFontBold = pcMemDocument->CreateFont("Helvetica-Bold", false, pcEncoding);
     pcFontItalic = pcMemDocument->CreateFont("Helvetica-Oblique", false, pcEncoding);
+    pcFontBoldItalic = pcMemDocument->CreateFont("Helvetica-BoldOblique", false, pcEncoding);
     pcFontUnderligne = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
-    pcFontParagraph = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
+    pcFontParagraph = pcMemDocument->CreateFont("LiberationSerif", false);
     pcFontDotList = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
     pcFontNumList = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
     pcFontHRule = pcMemDocument->CreateFont("LiberationSerif", false, pcEncoding);
@@ -263,6 +264,14 @@ PdfFont *  IOPdf::GetItalicFont()
 void IOPdf::SetItalicFont(PdfFont * font)
 {
   pcFontItalic = font;
+}
+PdfFont *  IOPdf::GetBoldItalicFont()
+{
+  return pcFontBoldItalic;
+}
+void IOPdf::SetBoldItalicFont(PdfFont * font)
+{
+  pcFontBoldItalic = font;
 }
 PdfFont *  IOPdf::GetParagraphFont()
 {
