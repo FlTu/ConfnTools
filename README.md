@@ -2,7 +2,7 @@
 ConfnTools Repostory
 ====================
 
-This Repository mainly contains configuration files for Emacs, bash and Git software.
+This Repository mainly contains configuration files for Emacs, bash and Git softwares.
 A home made software is there, PGenTo Because of its goal, to bring a tool for document generation.
 Probably this soft will soon have its own repo.
 
