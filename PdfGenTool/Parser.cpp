@@ -1,3 +1,4 @@
+
 /********************************************************************************
  **********                                                            **********
  **********     Nom du fichier                : Parser.cpp             **********
@@ -59,7 +60,7 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
   {
     if( (0 == strcmp(argv[i], "-i")) || (0 == strcmp(argv[i], "--input")) )
     {
-      if(CheckIsParameter(argv[i+1]))
+      if(argc < (i+1) || CheckIsParameter(argv[i+1]))
       {
         std::cout << "[Erreur] Le paramètre " << argv[i] << " attends un argument" << std::endl;
         Helper::ShowHelp(true);
@@ -70,7 +71,7 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
     }
     else if( (0 == strcmp(argv[i], "-o")) || (0 == strcmp(argv[i], "--output")) )
     {
-      if(CheckIsParameter(argv[i+1]))
+      if(argc < (i+1) || CheckIsParameter(argv[i+1]))
       {
         std::cout << "[Erreur] Le paramètre " << argv[i] << " attends un argument" << std::endl;
         Helper::ShowHelp(true);
@@ -92,7 +93,7 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
     }
     else if( (0 == strcmp(argv[i], "-e")) || (0 == strcmp(argv[i], "--encoding")) )
     {
-      if(CheckIsParameter(argv[i+1]))
+      if(argc < (i+1) || CheckIsParameter(argv[i+1]))
       {
         std::cout << "[Erreur] Le paramètre " << argv[i] << " attends un argument" << std::endl;
         Helper::ShowHelp(true);
@@ -124,7 +125,14 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
     }
   }
   if(lParametres.GetOutputFileName() == ""){
-    lParametres.SetOutputFileName(lParametres.GetInputFileName()+ ".pdf");
+    smatch matchExt;
+    regex fileExtension = regex("\\.[a-zA-Z0-9]{1,3}$");
+    if(regex_search(lParametres.GetInputFileName(), matchExt, fileExtension)){
+      lParametres.SetOutputFileName(matchExt.prefix().str()+ ".pdf");
+    }
+    else{
+      lParametres.SetOutputFileName(lParametres.GetInputFileName()+ ".pdf");
+    }
 
   }
   return lParametres;
@@ -158,7 +166,6 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
       curStringTest = PoDoFo::PdfString(curLine);
       curLine += curChar;
       if(curChar == 10){
-        std::cout << "ligne : " << curLine << std::endl;
         if(isFirstLine){
           isFirstLine = false;
           isDrawable = false;
