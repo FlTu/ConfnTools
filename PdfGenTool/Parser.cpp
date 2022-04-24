@@ -138,6 +138,118 @@ Parametres Parser::ParseParameters(int argc, char ** argv)
   return lParametres;
 }
 
+void Parser::ParseParagraph(IOPdf * lOutFile, PdfFont * curFont, PdfString * curString, std::string * curLine, double * cdX, double * cdY, bool * isDrawable, bool * isFirstPLine)
+{
+  std::string formattedString;
+  smatch matchBoldStart;
+  smatch matchBoldEnd;
+  smatch matchItalicStart;
+  smatch matchItalicEnd;
+  smatch matchUnderlinedStart;
+  smatch matchUnderlinedEnd;
+  smatch matchLink;
+  bool boldFound = false;
+  bool italicFound = false;
+  bool underlinedFound = false;
+  bool linkFound = false;
+  bool isBold = false;
+  bool isItalic = false;
+  bool isUnderlined = false;
+  bool isCrossed = false;
+  int i = 1;
+  if(*isFirstPLine){
+    *cdX += 20;
+  }
+  boldFound = regex_search(*curLine, matchBoldStart, rBoldStart);
+  regex_search(*curLine, matchBoldEnd, rBoldEnd);
+  italicFound = regex_search(*curLine, matchItalicStart, rItalicStart);
+  regex_search(*curLine, matchItalicEnd, rItalicEnd);
+  underlinedFound = regex_search(*curLine, matchUnderlinedStart, rUnderligneStart);
+  regex_search(*curLine, matchUnderlinedEnd, rUnderligneEnd);
+  linkFound = regex_search(*curLine, matchLink, rLocalLink);
+  for(int i = 0 ; i < (*curLine).length() ; i++){
+    if(boldFound && matchBoldStart.prefix().length() == i){
+      isBold = true;
+      i+=2;
+    }
+    else if(boldFound && matchBoldEnd.prefix().length() == i){
+      isBold = false;
+      *curLine = matchBoldEnd.suffix().str();
+      boldFound = regex_search(*curLine, matchBoldStart, rBoldStart);
+      regex_search(*curLine, matchBoldEnd, rBoldEnd);
+      i=0;
+    }
+    if(italicFound && matchItalicStart.prefix().length() == i){
+      isItalic = true;
+      i+=2;
+    }
+    else if(italicFound && matchItalicEnd.prefix().length() == i){
+      isItalic = false;
+      *curLine = matchItalicEnd.suffix().str();
+      italicFound = regex_search(*curLine, matchItalicStart, rItalicEnd);
+      regex_search(*curLine, matchItalicEnd, rItalicEnd);
+      i=0;
+    }
+    if(underlinedFound && matchUnderlinedStart.prefix().length() == i){
+      isUnderlined = true;
+      i+=2;
+    }
+    else if(underlinedFound && matchUnderlinedEnd.prefix().length() == i){
+      isUnderlined = false;
+      *curLine = matchUnderlinedEnd.suffix().str();
+      underlinedFound = regex_search(*curLine, matchUnderlinedStart, rUnderligneStart);
+      regex_search(*curLine, matchUnderlinedEnd, rUnderligneEnd);
+      i=0;
+    }
+    if(isBold && isItalic){
+      curFont = lOutFile->GetBoldItalicFont();
+      curFont->SetFontSize(8);
+    }
+    else if(isBold){
+      curFont = lOutFile->GetBoldFont();
+      curFont->SetFontSize(8);
+    }
+    else if(isItalic){
+      curFont = lOutFile->GetItalicFont();
+      curFont->SetFontSize(8);
+    }
+    else{
+      curFont = lOutFile->GetParagraphFont();
+      curFont->SetFontSize(12);
+    }              
+    if(isUnderlined){
+      curFont->SetUnderlined(true);
+    }
+    else if(!isUnderlined){
+      curFont->SetUnderlined(false);
+    }
+    formattedString = (*curLine)[i];
+    *curString = PoDoFo::PdfString(formattedString);
+    if(*cdX >= (lOutFile->GetPageSize().GetWidth() - cPdfMargin)){
+      *cdX= cPdfMargin;
+      *cdY-= 20;
+    }
+    if(*cdY <= 40){
+      lOutFile->AddPage(PdfPage::CreateStandardPageSize(ePdfPageSize_A4));
+      *cdY = lOutFile->GetPageSize().GetHeight() - 40;
+    }
+    
+    lOutFile->DrawLine(*cdX, *cdY, *curString, (*curString).GetLength(), curFont);
+    *cdX+= curFont->GetFontMetrics()->CharWidth((*curLine)[i]);
+    if(isBold || isItalic){
+      *cdX +=3;
+    }
+  }
+  *cdY-= 20;
+  *isDrawable = false;
+  if(*isFirstPLine){
+    *cdX -= 20;
+    *isFirstPLine = false;
+  }
+
+  
+}
+
 IOPdf * Parser::ParseInputFile(std::string iFileName)
 {
   IOPdf * lOutFile = NULL;
@@ -188,114 +300,7 @@ IOPdf * Parser::ParseInputFile(std::string iFileName)
           isParagraph = false;
         }
         else if(isParagraph){
-          std::string formattedString;
-          smatch matchBoldStart;
-          smatch matchBoldEnd;
-          smatch matchItalicStart;
-          smatch matchItalicEnd;
-          smatch matchUnderlinedStart;
-          smatch matchUnderlinedEnd;
-          smatch matchLink;
-          bool boldFound = false;
-          bool italicFound = false;
-          bool underlinedFound = false;
-          bool linkFound = false;
-          bool isBold = false;
-          bool isItalic = false;
-          bool isUnderlined = false;
-          bool isCrossed = false;
-          int i = 1;
-          if(isFirstPLine){
-            cdX += 20;
-          }
-          boldFound = regex_search(curLine, matchBoldStart, rBoldStart);
-          regex_search(curLine, matchBoldEnd, rBoldEnd);
-          italicFound = regex_search(curLine, matchItalicStart, rItalicStart);
-          regex_search(curLine, matchItalicEnd, rItalicEnd);
-          underlinedFound = regex_search(curLine, matchUnderlinedStart, rUnderligneStart);
-          regex_search(curLine, matchUnderlinedEnd, rUnderligneEnd);
-          linkFound = regex_search(curLine, matchLink, rLocalLink);
-          for(int i = 0 ; i < curLine.length() ; i++){
-            if(boldFound && matchBoldStart.prefix().length() == i){
-              isBold = true;
-              i+=2;
-            }
-            else if(boldFound && matchBoldEnd.prefix().length() == i){
-              isBold = false;
-              curLine = matchBoldEnd.suffix().str();
-              boldFound = regex_search(curLine, matchBoldStart, rBoldStart);
-              regex_search(curLine, matchBoldEnd, rBoldEnd);
-              i=0;
-            }
-            if(italicFound && matchItalicStart.prefix().length() == i){
-              isItalic = true;
-              i+=2;
-            }
-            else if(italicFound && matchItalicEnd.prefix().length() == i){
-              isItalic = false;
-              curLine = matchItalicEnd.suffix().str();
-              italicFound = regex_search(curLine, matchItalicStart, rItalicEnd);
-              regex_search(curLine, matchItalicEnd, rItalicEnd);
-              i=0;
-            }
-            if(underlinedFound && matchUnderlinedStart.prefix().length() == i){
-              isUnderlined = true;
-              i+=2;
-            }
-            else if(underlinedFound && matchUnderlinedEnd.prefix().length() == i){
-              isUnderlined = false;
-              curLine = matchUnderlinedEnd.suffix().str();
-              underlinedFound = regex_search(curLine, matchUnderlinedStart, rUnderligneStart);
-              regex_search(curLine, matchUnderlinedEnd, rUnderligneEnd);
-              i=0;
-            }
-            if(isBold && isItalic){
-              curFont = lOutFile->GetBoldItalicFont();
-              curFont->SetFontSize(8);
-            }
-            else if(isBold){
-              curFont = lOutFile->GetBoldFont();
-              curFont->SetFontSize(8);
-            }
-            else if(isItalic){
-              curFont = lOutFile->GetItalicFont();
-              curFont->SetFontSize(8);
-            }
-            else{
-              curFont = lOutFile->GetParagraphFont();
-              curFont->SetFontSize(12);
-            }              
-            if(isUnderlined){
-              curFont->SetUnderlined(true);
-            }
-            else if(!isUnderlined){
-              curFont->SetUnderlined(false);
-            }
-            formattedString = curLine[i];
-            curString = PoDoFo::PdfString(formattedString);
-            if(cdX >= (lOutFile->GetPageSize().GetWidth() - cPdfMargin)){
-              cdX= cPdfMargin;
-              cdY-= 20;
-            }
-            if(cdY <= 40){
-              lOutFile->AddPage(PdfPage::CreateStandardPageSize(ePdfPageSize_A4));
-              cdY = lOutFile->GetPageSize().GetHeight() - 40;
-            }
-    
-            lOutFile->DrawLine(cdX, cdY, curString, curString.GetLength(), curFont);
-            cdX+= curFont->GetFontMetrics()->CharWidth(curLine[i]);
-            if(isBold || isItalic){
-              cdX +=3;
-            }
-          }
-          nextY = 20;
-          cdY-= nextY;
-          isDrawable = false;
-          if(isFirstPLine){
-            cdX -= 20;
-            isFirstPLine = false;
-          }
-
+          ParseParagraph(lOutFile, curFont, &curString, &curLine, &cdX, &cdY, &isDrawable, &isFirstPLine);
         }
         else if(storedLines.size() > 0 && regex_search(storedLines.at(0), rFileTitleFirstLine) && regex_search(curLine, regex("\\~*"))){
           std::string tmpLine;

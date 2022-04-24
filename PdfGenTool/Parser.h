@@ -51,6 +51,7 @@ private:
   regex rLocalLink;
 double cPdfMargin;
   
+  void ParseParagraph(IOPdf * lOutFile, PdfFont * curFont, PdfString * curString, std::string * curLine, double * cdX, double * cdY, bool * isDrawable, bool * isFirstPLine);
 public:
   /** Constructeur **/
   Parser();
